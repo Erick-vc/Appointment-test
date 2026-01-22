@@ -1,0 +1,123 @@
+import { api } from "@api/index";
+import type {
+  TAppointmentRequest,
+  TAppointmentResponse,
+} from "@lib/types/appointment";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+export const getAppointment = async () => {
+  const response = await api.get("appointments/");
+  return response.data;
+};
+
+export const useGetAppointment = () => {
+  const {
+    data: dataAppointments,
+    isLoading: isLoadingAppointments,
+    error,
+  } = useQuery<TAppointmentResponse[]>({
+    queryKey: ["appointments"],
+    queryFn: getAppointment,
+  });
+  return { dataAppointments, isLoadingAppointments, error };
+};
+
+export const retrieveAppointment = async (id: number) => {
+  const response = await api.get(`appointments/${id}/`);
+  return response.data;
+};
+
+export const useRetrieveAppointment = (id: number) => {
+  const {
+    data: dataAppointment,
+    isLoading: isLoadingAppointment,
+    error,
+  } = useQuery<TAppointmentResponse>({
+    queryKey: ["appointment", id],
+    queryFn: () => retrieveAppointment(id),
+    enabled: !!id,
+  });
+
+  return {
+    dataAppointment,
+    isLoadingAppointment,
+    error: error,
+  };
+};
+
+export const createAppointment = async (appointment: TAppointmentRequest) => {
+  const response = await api.post("appointments/", appointment);
+  return response.data;
+};
+
+export const updateAppointment = async (
+  id: number,
+  appointment: TAppointmentRequest,
+) => {
+  const response = await api.put(`appointments/${id}/`, appointment);
+  return response.data;
+};
+
+export const deleteAppointment = async (id: number) => {
+  const response = await api.delete(`appointments/${id}/`);
+  return response.data;
+};
+
+export const bulkDeleteAppointment = async (ids: number[]) => {
+  const response = await api.post(`appointments/bulk-delete/`, {
+    ids,
+  });
+  return response.data;
+};
+
+export const useMutationAppointment = () => {
+  const queryClient = useQueryClient();
+
+  const { mutate: createAppointmentMutate, isPending: isLoadingCreateAppointment } =
+    useMutation({
+      mutationFn: createAppointment,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      },
+    });
+
+  const { mutate: updateAppointmentMutate, isPending: isLoadingUpdateAppointment } =
+    useMutation({
+      mutationFn: (data: { id: number; appointment: TAppointmentRequest }) =>
+        updateAppointment(data.id, data.appointment),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      },
+    });
+
+  const {
+    mutate: deleteAppointmentMutate,
+    isPending: isLoadingDeleteAppointment,
+  } = useMutation({
+    mutationFn: deleteAppointment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["appointments"] });
+    },
+  });
+
+  const {
+    mutate: bulkDeleteAppointmentMutate,
+    isPending: isLoadingBulkDeleteAppointment,
+  } = useMutation({
+    mutationFn: bulkDeleteAppointment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["appointments"] });
+    },
+  });
+
+  return {
+    createAppointmentMutate,
+    isLoadingCreateAppointment,
+    updateAppointmentMutate,
+    isLoadingUpdateAppointment,
+    deleteAppointmentMutate,
+    isLoadingDeleteAppointment,
+    bulkDeleteAppointmentMutate,
+    isLoadingBulkDeleteAppointment,
+  };
+};
