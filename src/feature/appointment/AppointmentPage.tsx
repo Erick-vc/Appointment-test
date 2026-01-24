@@ -1,5 +1,6 @@
 import { DeleteIcon, EditIcon, Plus } from "@assets/icons";
 import TableComponent from "@components/TableComponent";
+import { TableSkeleton } from "@components/TableSkeleton";
 import { Button } from "@components/ui/Button";
 import { DropdownActions } from "@components/ui/DropdownActions";
 import { ModalActions } from "@components/ui/modal/ModalActions";
@@ -10,6 +11,7 @@ import type { TColumnsTable } from "@lib/types";
 import type { TAppointment } from "@lib/types/appointment";
 import { useState } from "react";
 import { ModalCreateOrUpdate } from "./ModalCreateOrUpdate";
+import { TitleHeader } from "@components/TitleHeader";
 
 
 export const AppointmentPage = () => {
@@ -23,7 +25,7 @@ export const AppointmentPage = () => {
     { name: 'Estado', key: 'status', type: 'string' },
   ];
 
-  const { dataAppointments } = useGetAppointment();
+  const { dataAppointments, isLoadingAppointments } = useGetAppointment();
   const { deleteAppointmentMutate, bulkDeleteAppointmentMutate } = useMutationAppointment()
   const { showModal, hideModal } = useModalStore();
   const [selectedRows, setSelectedRows] = useState<TAppointment[]>([])
@@ -36,7 +38,6 @@ export const AppointmentPage = () => {
     });
   };
 
-  console.log('rows', selectedRows)
   const getSelectedRows = (rows: TAppointment[]) => {
     setSelectedRows(rows)
   }
@@ -113,12 +114,14 @@ export const AppointmentPage = () => {
     });
   }
 
+  // if (isLoadingAppointments) {
+  //   return <TableSkeleton rows={5} columns={5} />
+  // }
 
   return (
-    <div className="flex flex-col gap-6 items-center justify-center h-full ">
-      <h1 className="text-2xl text-black font-bold ">
-        Bienvenido a la aplicacion de citas
-      </h1>
+    <div className="flex flex-col gap-4  justify-center ">
+
+      <TitleHeader title="Citas" subTitle="Accede a la información de los citas, revisa su estado y realiza acciones sobre ellos." />
 
       <TableComponent<TAppointment>
         columns={columns}

@@ -20,3 +20,9 @@ export type TStatsAppointment = {
   username: string;
   count: number;
 };
+
+export type TStatsAppointmentCount = {
+  pending: number;
+  in_progress: number;
+  done: number;
+};

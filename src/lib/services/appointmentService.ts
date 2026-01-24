@@ -3,6 +3,7 @@ import type {
   TAppointmentRequest,
   TAppointmentResponse,
   TStatsAppointment,
+  TStatsAppointmentCount,
 } from "@lib/types/appointment";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -142,5 +143,25 @@ export const useGetStatsByUserAppointment = () => {
   return {
     dataStatsAppointment,
     isLoadingStatsAppointment,
+  };
+};
+
+const getStatsAppointmentCount = async () => {
+  const response = await api.get("appointments/count-by-user/");
+  return response.data;
+};
+
+export const useGetStatsAppointmentCount = () => {
+  const {
+    data: dataStatsAppointmentCount,
+    isLoading: isLoadingStatsAppointmentCount,
+  } = useQuery<TStatsAppointmentCount>({
+    queryKey: ["stats-appointment-count"],
+    queryFn: getStatsAppointmentCount,
+  });
+
+  return {
+    dataStatsAppointmentCount,
+    isLoadingStatsAppointmentCount,
   };
 };

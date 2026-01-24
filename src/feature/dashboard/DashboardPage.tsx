@@ -1,13 +1,14 @@
 
-import { useGetStatsByUserAppointment } from '@lib/services/appointmentService'
+import { useGetStatsAppointmentCount, useGetStatsByUserAppointment } from '@lib/services/appointmentService'
 import { ResponsiveBar } from '@nivo/bar'
+import { ResponsivePie } from '@nivo/pie'
 import { useMemo } from 'react'
 
 export const DashboardPage = () => {
 
 
     const { dataStatsAppointment, isLoadingStatsAppointment } = useGetStatsByUserAppointment()
-    console.log('dataStatsAppointment', dataStatsAppointment)
+    const { dataStatsAppointmentCount, isLoadingStatsAppointmentCount } = useGetStatsAppointmentCount()
 
 
     const getColorByCitas = (value: number | null) => {
@@ -30,21 +31,49 @@ export const DashboardPage = () => {
             }))
     }, [dataStatsAppointment])
 
+    const dataForPieChart = useMemo(() => {
+        if (!dataStatsAppointmentCount) return []
+
+        return [
+            {
+                id: "Pendientes",
+                label: "Pendientes",
+                value: dataStatsAppointmentCount.pending,
+                color: "#F2C94C",
+
+            },
+            {
+                id: "En Proceso",
+                label: "En Proceso",
+                value: dataStatsAppointmentCount.in_progress,
+                color: "#5C7AEA",
+            },
+            {
+                id: "Completadas",
+                label: "Completadas",
+                value: dataStatsAppointmentCount.done,
+                color: "#6FCF97",
+
+            }
+        ]
+
+    }, [dataStatsAppointmentCount])
+
 
     const axisTextStyle = {
-        fontSize: 24,
-        fill: '#78829D',
+        fontSize: 18,
+        fill: '#111827',
         fontFamily: 'Inter, sans-serif',
     }
 
-    if (isLoadingStatsAppointment) {
+    if (isLoadingStatsAppointment || isLoadingStatsAppointmentCount) {
         return <div>Loading...</div>
     }
 
 
     return (
-        <div className='h-full flex items-center justify-center'>
-            <div className='h-[300px] w-[600px] border rounded-lg border-gray-200 shadow-lg'>
+        <div className='flex flex-col gap-4 items-center justify-center'>
+            <div className='min-h-[300px] w-[600px] border rounded-lg border-gray-200 bg-white shadow-lg'>
                 <ResponsiveBar /* or Bar for fixed dimensions */
                     data={dataForChart}
                     keys={["citas"]}
@@ -52,6 +81,8 @@ export const DashboardPage = () => {
                     indexBy="username"
                     layout="horizontal"
                     padding={0.45}
+                    borderRadius={4}
+                    borderWidth={2}
                     labelSkipWidth={8}
                     animate={true}
                     theme={{
@@ -105,13 +136,61 @@ export const DashboardPage = () => {
                     }}
                     axisTop={{
                         renderTick: () => null,
-                        legend: 'Citas',
+                        legend: 'Ranking de citas por usuario',
                         legendPosition: 'middle',
-                        legendOffset: -10,
+                        legendOffset: -24,
 
                     }}
                     margin={{ top: 60, right: 60, bottom: 50, left: 100 }}
                 />
+            </div>
+            <div className='border rounded-lg border-gray-200 bg-white shadow-lg'>
+                <div className="flex items-center justify-center pt-4">
+                    <p className="text-[#111827] text-lg">Ranking de tus citas por estado</p>
+                </div>
+                <div className='min-h-[300px] w-[600px]'>
+                    <ResponsivePie
+                        data={dataForPieChart}
+                        key={dataForPieChart.length}
+                        margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+                        innerRadius={0.6} // dona (más pro)
+                        padAngle={1}
+                        animate={true}
+                        motionConfig="wobbly" // prueba también: "gentle", "stiff", "slow"
+                        transitionMode="startAngle"
+                        cornerRadius={4}
+                        colors={dataForPieChart.map(item => item.color)}
+                        activeOuterRadiusOffset={6}
+                        arcLinkLabelsSkipAngle={10}
+                        arcLinkLabelsTextColor="#78829D"
+                        theme={{
+                            labels: {
+                                text: {
+                                    fontSize: 12,
+                                    fontFamily: 'Inter, sans-serif',
+                                    fill: '#111827',
+                                },
+                            },
+                            tooltip: {
+                                container: {
+                                    background: '#111827',
+                                    color: '#fff',
+                                    fontSize: 12,
+                                },
+                            },
+                        }}
+                        legends={[
+                            {
+                                anchor: 'bottom',
+                                direction: 'row',
+                                translateY: 56,
+                                itemWidth: 100,
+                                itemHeight: 18,
+                                symbolShape: 'circle'
+                            }
+                        ]}
+                    />
+                </div>
             </div>
         </div>
     )
