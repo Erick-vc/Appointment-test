@@ -15,3 +15,8 @@ export type TAppointmentRequest = Pick<
 >;
 
 export type TStatusAppointment = "pending" | "in_progress" | "done";
+
+export type TStatsAppointment = {
+  username: string;
+  count: number;
+};

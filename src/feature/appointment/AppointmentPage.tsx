@@ -12,7 +12,7 @@ import { useState } from "react";
 import { ModalCreateOrUpdate } from "./ModalCreateOrUpdate";
 
 
-export const HomePage = () => {
+export const AppointmentPage = () => {
 
   const columns: TColumnsTable<TAppointment>[] = [
     { name: 'ID', key: 'id', type: 'number', initialWidth: 80 },
@@ -22,7 +22,6 @@ export const HomePage = () => {
     { name: 'Fecha de actualizacion', key: 'updated_at', type: 'date' },
     { name: 'Estado', key: 'status', type: 'string' },
   ];
-
 
   const { dataAppointments } = useGetAppointment();
   const { deleteAppointmentMutate, bulkDeleteAppointmentMutate } = useMutationAppointment()

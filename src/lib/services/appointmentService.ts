@@ -2,10 +2,11 @@ import { api } from "@api/index";
 import type {
   TAppointmentRequest,
   TAppointmentResponse,
+  TStatsAppointment,
 } from "@lib/types/appointment";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const getAppointment = async () => {
+const getAppointment = async () => {
   const response = await api.get("appointments/");
   return response.data;
 };
@@ -22,7 +23,7 @@ export const useGetAppointment = () => {
   return { dataAppointments, isLoadingAppointments, error };
 };
 
-export const retrieveAppointment = async (id: number) => {
+const retrieveAppointment = async (id: number) => {
   const response = await api.get(`appointments/${id}/`);
   return response.data;
 };
@@ -45,12 +46,12 @@ export const useRetrieveAppointment = (id: number) => {
   };
 };
 
-export const createAppointment = async (appointment: TAppointmentRequest) => {
+const createAppointment = async (appointment: TAppointmentRequest) => {
   const response = await api.post("appointments/", appointment);
   return response.data;
 };
 
-export const updateAppointment = async (
+const updateAppointment = async (
   id: number,
   appointment: TAppointmentRequest,
 ) => {
@@ -58,12 +59,12 @@ export const updateAppointment = async (
   return response.data;
 };
 
-export const deleteAppointment = async (id: number) => {
+const deleteAppointment = async (id: number) => {
   const response = await api.delete(`appointments/${id}/`);
   return response.data;
 };
 
-export const bulkDeleteAppointment = async (ids: number[]) => {
+const bulkDeleteAppointment = async (ids: number[]) => {
   const response = await api.post(`appointments/bulk-delete/`, {
     ids,
   });
@@ -73,22 +74,26 @@ export const bulkDeleteAppointment = async (ids: number[]) => {
 export const useMutationAppointment = () => {
   const queryClient = useQueryClient();
 
-  const { mutate: createAppointmentMutate, isPending: isLoadingCreateAppointment } =
-    useMutation({
-      mutationFn: createAppointment,
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["appointments"] });
-      },
-    });
+  const {
+    mutate: createAppointmentMutate,
+    isPending: isLoadingCreateAppointment,
+  } = useMutation({
+    mutationFn: createAppointment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["appointments"] });
+    },
+  });
 
-  const { mutate: updateAppointmentMutate, isPending: isLoadingUpdateAppointment } =
-    useMutation({
-      mutationFn: (data: { id: number; appointment: TAppointmentRequest }) =>
-        updateAppointment(data.id, data.appointment),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["appointments"] });
-      },
-    });
+  const {
+    mutate: updateAppointmentMutate,
+    isPending: isLoadingUpdateAppointment,
+  } = useMutation({
+    mutationFn: (data: { id: number; appointment: TAppointmentRequest }) =>
+      updateAppointment(data.id, data.appointment),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["appointments"] });
+    },
+  });
 
   const {
     mutate: deleteAppointmentMutate,
@@ -119,5 +124,23 @@ export const useMutationAppointment = () => {
     isLoadingDeleteAppointment,
     bulkDeleteAppointmentMutate,
     isLoadingBulkDeleteAppointment,
+  };
+};
+
+const getStatsByUserAppointment = async () => {
+  const response = await api.get("appointments/stats-by-user/");
+  return response.data;
+};
+
+export const useGetStatsByUserAppointment = () => {
+  const { data: dataStatsAppointment, isLoading: isLoadingStatsAppointment } =
+    useQuery<TStatsAppointment[]>({
+      queryKey: ["stats-appointment"],
+      queryFn: getStatsByUserAppointment,
+    });
+
+  return {
+    dataStatsAppointment,
+    isLoadingStatsAppointment,
   };
 };

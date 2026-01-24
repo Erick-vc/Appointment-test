@@ -1,10 +1,22 @@
-import { FolderMinus } from "@assets/icons";
+import { DashboardIcon, FolderMinus, UserIcon } from "@assets/icons";
 
 export const menuList = [
   {
     id: 1,
-    title: "Test_1",
+    title: "Estadísticas",
+    icon: DashboardIcon,
+    route: "/estadisticas",
+  },
+  {
+    id: 2,
+    title: "Citas",
     icon: FolderMinus,
-    route: "/test-1",
+    route: "/citas",
+  },
+  {
+    id: 3,
+    title: "Perfil",
+    icon: UserIcon,
+    route: "/perfil",
   },
 ];
