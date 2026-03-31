@@ -5,6 +5,7 @@ import type {
   TStatsAppointment,
   TStatsAppointmentCount,
 } from "@lib/types/appointment";
+import type { TDashboardResponse } from "@lib/types/dashboard";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const getAppointment = async () => {
@@ -163,5 +164,28 @@ export const useGetStatsAppointmentCount = () => {
   return {
     dataStatsAppointmentCount,
     isLoadingStatsAppointmentCount,
+  };
+};
+
+const getAppointmentDashboard = async () => {
+  try {
+    const response = await api.get("appointments/dashboard/");
+    return response.data as TDashboardResponse;
+  } catch {
+    return null;
+  }
+};
+
+export const useGetAppointmentDashboard = () => {
+  const { data: dataAppointmentDashboard, isLoading: isLoadingAppointmentDashboard } =
+    useQuery<TDashboardResponse | null>({
+      queryKey: ["appointment-dashboard"],
+      queryFn: getAppointmentDashboard,
+      retry: false,
+    });
+
+  return {
+    dataAppointmentDashboard,
+    isLoadingAppointmentDashboard,
   };
 };
